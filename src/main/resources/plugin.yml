@@ -1,0 +1,10 @@
+name: ChatBotPlugin
+version: 1.0-SNAPSHOT
+main: me.watermanmc.chatbotplugin.Plugin
+api-version: 1.13
+author: WatermanMC
+description: A chatbot plugin powered by Gemini AI.
+commands:
+  chatbot:
+    description: Chat with the Gemini AI bot.
+    usage: /chatbot <your response>
