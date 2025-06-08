@@ -12,10 +12,10 @@ public final class Plugin extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        String apiKey = getConfig().getString("gemini-api-key");
+        String apiKey = getConfig().getString("api-key");
 
         if (apiKey == null || apiKey.isEmpty() || apiKey.equals("YOUR_GEMINI_API_KEY")) {
-            getLogger().severe("Gemini API key not found in config.yml. Please add it and restart the server.");
+            getLogger().severe("API key not found in config.yml. Please add it and restart the server.");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
