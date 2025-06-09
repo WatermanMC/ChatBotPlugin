@@ -6,7 +6,7 @@ ChatBotPlugin brings the power of generative AI to your Minecraft server. Player
 
 * **Developer:** [WatermanMC](https://watermanmc.42web.io/)
 * **Current Version:** 1.0-SNAPSHOT
-* **You can download it at:** SpigotMC, [Modrinth](https://modrinth.com/plugin/chatbotplugin)
+* **You can download it at:** [SpigotMC](https://www.spigotmc.org/resources/chatbotplugin.125894/), [Modrinth](https://modrinth.com/plugin/chatbotplugin)
 # ✨ Features
  * 🤖 Intelligent AI Chat: Engage with a powerful AI that can answer questions, tell stories, and help you build!
  * 🤫 Private Responses: The AI responds directly and privately to the player who used the command, keeping your server chat clean.
