@@ -1,35 +1,44 @@
 package me.watermanmc.chatbotplugin;
 
-import com.google.ai.client.generativeai.java.GenerativeModelFutures;
-import com.google.ai.client.generativeai.type.Content;
-import com.google.ai.client.generativeai.type.GenerateContentResponse;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.json.JSONObject;
 
-import java.util.concurrent.Executor;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class ChatbotCommand implements CommandExecutor {
 
     private final Plugin plugin;
-    private final GenerativeModelFutures generativeModel;
     private final MessageManager messageManager;
+    private final String apiKey;
+    private final String model = "gemini-1.5-flash-001";
 
-    public ChatbotCommand(Plugin plugin, GenerativeModelFutures generativeModel, MessageManager messageManager) {
+    public ChatbotCommand(Plugin plugin) {
         this.plugin = plugin;
-        this.generativeModel = generativeModel;
-        this.messageManager = messageManager;
+        this.messageManager = new MessageManager(plugin);
+        this.apiKey = plugin.getConfig().getString("api-key");
+
+        if (this.apiKey == null || this.apiKey.isEmpty() || this.apiKey.equals("YOUR_GEMINI_API_KEY")) {
+            plugin.getLogger().severe("API key is not configured in config.yml. Disabling plugin...");
+        }
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage("This command can only be used by players.");
+            return true;
+        }
+
+        if (apiKey == null || apiKey.isEmpty() || apiKey.equals("YOUR_GEMINI_API_KEY")) {
+            sender.sendMessage(messageManager.getFormattedResponse("§cThe chatbot is not configured. Please contact a server administrator."));
             return true;
         }
 
@@ -42,25 +51,53 @@ public class ChatbotCommand implements CommandExecutor {
 
         String prompt = String.join(" ", args);
 
-        Executor mainThreadExecutor = (runnable) -> Bukkit.getScheduler().runTask(plugin, runnable);
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                URL url = new URL("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey);
 
-        Content content = new Content.Builder().addText(prompt).build();
-        ListenableFuture<GenerateContentResponse> response = generativeModel.generateContent(content);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
+                String jsonBody = new JSONObject()
+                    .put("contents", new JSONObject[] {
+                        new JSONObject().put("parts", new JSONObject[] {
+                            new JSONObject().put("text", prompt)
+                        })
+                    }).toString();
 
-        Futures.addCallback(response, new FutureCallback<GenerateContentResponse>() {
-            @Override
-            public void onSuccess(GenerateContentResponse result) {
-                String responseText = result.getText();
-                player.sendMessage(messageManager.getFormattedResponse(responseText));
+                try (OutputStream os = connection.getOutputStream()) {
+                    byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
+                    os.write(input, 0, input.length);
+                }
+
+                StringBuilder response = new StringBuilder();
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+                    String responseLine;
+                    while ((responseLine = br.readLine()) != null) {
+                        response.append(responseLine.trim());
+                    }
+                }
+
+                JSONObject jsonResponse = new JSONObject(response.toString());
+                String responseText = jsonResponse.getJSONArray("candidates")
+                                                  .getJSONObject(0)
+                                                  .getJSONObject("content")
+                                                  .getJSONArray("parts")
+                                                  .getJSONObject(0)
+                                                  .getString("text")
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    player.sendMessage(messageManager.getFormattedResponse(responseText));
+                });
+
+            } catch (Exception e) {
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                     player.sendMessage(messageManager.getFormattedResponse("§cError: Could not get a response from the AI."));
+                });
+                plugin.getLogger().severe("An error occurred while contacting the Gemini API: " + e.getMessage());
+                e.printStackTrace();
             }
-
-            @Override
-            public void onFailure(Throwable t) {
-                player.sendMessage(messageManager.getFormattedResponse("§cError: Could not get a response."));
-                plugin.getLogger().severe("Failed to get response from Gemini: " + t.getMessage());
-                t.printStackTrace();
-            }
-        }, mainThreadExecutor);
+        });
 
         return true;
     }
