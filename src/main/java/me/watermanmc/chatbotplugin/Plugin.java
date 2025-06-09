@@ -15,12 +15,12 @@ public final class Plugin extends JavaPlugin {
         String apiKey = getConfig().getString("api-key");
 
         if (apiKey == null || apiKey.isEmpty() || apiKey.equals("YOUR_GEMINI_API_KEY")) {
-            getLogger().severe("API key not found in config.yml. Please add it and restart the server.");
+            getLogger().severe("API key not found in config.yml. Please get one from Google AI Studio and restart.");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
-        GenerativeModel gm = new GenerativeModel("gemini-pro", apiKey);
+        GenerativeModel gm = new GenerativeModel("gemini-1.5-flash-001", apiKey);
         generativeModel = GenerativeModelFutures.from(gm);
 
         this.messageManager = new MessageManager(this);
