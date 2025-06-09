@@ -39,8 +39,19 @@ public class MessageManager {
     }
 
     public String getUsageMessage() {
-        String message = getProperty("usage_message");
-        return getPrefix() + ChatColor.translateAlternateColorCodes('&', message);
+        return getPrefix() + ChatColor.translateAlternateColorCodes('&', getProperty("usage_message"));
+    }
+    
+    public String getOnlyPlayersMessage() {
+        return ChatColor.translateAlternateColorCodes('&', getProperty("only_players_message"));
+    }
+
+    public String getNotConfiguredMessage() {
+        return getPrefix() + ChatColor.translateAlternateColorCodes('&', getProperty("not_configured_message"));
+    }
+
+    public String getApiErrorMessage() {
+        return getPrefix() + ChatColor.translateAlternateColorCodes('&', getProperty("api_error_message"));
     }
 
     public String getFormattedResponse(String response) {
