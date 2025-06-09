@@ -26,19 +26,19 @@ public class ChatbotCommand implements CommandExecutor {
         this.apiKey = plugin.getConfig().getString("api-key");
 
         if (this.apiKey == null || this.apiKey.isEmpty() || this.apiKey.equals("YOUR_GEMINI_API_KEY")) {
-            plugin.getLogger().severe("API key is not configured in config.yml. Disabling plugin...");
+            plugin.getLogger().severe("API key is not configured in config.yml. Plugin will not work.");
         }
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage("This command can only be used by players.");
+            sender.sendMessage(messageManager.getOnlyPlayersMessage());
             return true;
         }
 
         if (apiKey == null || apiKey.isEmpty() || apiKey.equals("YOUR_GEMINI_API_KEY")) {
-            sender.sendMessage(messageManager.getFormattedResponse("§cThe chatbot is not configured. Please contact a server administrator."));
+            sender.sendMessage(messageManager.getNotConfiguredMessage());
             return true;
         }
 
@@ -59,6 +59,7 @@ public class ChatbotCommand implements CommandExecutor {
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Content-Type", "application/json");
                 connection.setDoOutput(true);
+
                 String jsonBody = new JSONObject()
                     .put("contents", new JSONObject[] {
                         new JSONObject().put("parts", new JSONObject[] {
@@ -85,14 +86,15 @@ public class ChatbotCommand implements CommandExecutor {
                                                   .getJSONObject("content")
                                                   .getJSONArray("parts")
                                                   .getJSONObject(0)
-                                                  .getString("text")
+                                                  .getString("text");
+
                 plugin.getServer().getScheduler().runTask(plugin, () -> {
                     player.sendMessage(messageManager.getFormattedResponse(responseText));
                 });
 
             } catch (Exception e) {
                 plugin.getServer().getScheduler().runTask(plugin, () -> {
-                     player.sendMessage(messageManager.getFormattedResponse("§cError: Could not get a response from the AI."));
+                     player.sendMessage(messageManager.getApiErrorMessage());
                 });
                 plugin.getLogger().severe("An error occurred while contacting the Gemini API: " + e.getMessage());
                 e.printStackTrace();
