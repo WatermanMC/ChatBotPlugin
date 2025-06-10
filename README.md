@@ -5,7 +5,7 @@
 ChatBotPlugin brings the power of generative AI to your Minecraft server. Players can have intelligent, dynamic conversations with an AI directly in the game chat, powered by Google's Gemini models.
 
 * **Developer:** [WatermanMC](https://watermanmc.42web.io/)
-* **Current Version:** 1.0-SNAPSHOT
+* **Current Version:** 1.1.0
 * **You can download it at:** [SpigotMC](https://www.spigotmc.org/resources/chatbotplugin.125894/), [Modrinth](https://modrinth.com/plugin/chatbotplugin)
 # ✨ Features
  * 🤖 Intelligent AI Chat: Engage with a powerful AI that can answer questions, tell stories, and help you build!
