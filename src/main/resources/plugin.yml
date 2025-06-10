@@ -1,5 +1,5 @@
 name: ChatBotPlugin
-version: 1.0-SNAPSHOT
+version: 1.0.0
 main: me.watermanmc.chatbotplugin.Plugin
 api-version: 1.13
 author: WatermanMC
