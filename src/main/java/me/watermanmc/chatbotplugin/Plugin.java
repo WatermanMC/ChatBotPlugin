@@ -1,13 +1,37 @@
 package me.watermanmc.chatbotplugin;
 
+import com.google.ai.client.generativeai.GenerativeModel;
+import com.google.ai.client.generativeai.java.GenerativeModelFutures;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Plugin extends JavaPlugin {
 
+    private GenerativeModelFutures generativeModel;
+    private MessageManager messageManager;
+
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        this.getCommand("chatbot").setExecutor(new ChatbotCommand(this));
+        String apiKey = getConfig().getString("api-key");
+
+        if (apiKey == null || apiKey.isEmpty() || apiKey.equals("YOUR_GEMINI_API_KEY")) {
+            getLogger().severe("API key not found in config.yml. Please get one from Google AI Studio and restart.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        int pluginId = 26143;
+        Metrics metrics = new Metrics(this, pluginId);
+
+
+        GenerativeModel gm = new GenerativeModel("gemini-1.5-flash-001", apiKey);
+        generativeModel = GenerativeModelFutures.from(gm);
+
+        this.messageManager = new MessageManager(this);
+
+        this.getCommand("chatbot").setExecutor(new ChatbotCommand(this, generativeModel, messageManager));
+
         getLogger().info("ChatBotPlugin has been enabled!");
     }
 
