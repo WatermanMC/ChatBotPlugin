@@ -87,9 +87,15 @@ public class ChatbotCommand implements CommandExecutor {
                                                   .getJSONArray("parts")
                                                   .getJSONObject(0)
                                                   .getString("text");
+                
+                String cleanedText = responseText
+                        .replace("**", "")
+                        .replace("*", "")
+                        .replace("`", "")
+                        .replace("#", "");
 
                 plugin.getServer().getScheduler().runTask(plugin, () -> {
-                    player.sendMessage(messageManager.getFormattedResponse(responseText));
+                    player.sendMessage(messageManager.getFormattedResponse(cleanedText));
                 });
 
             } catch (Exception e) {
