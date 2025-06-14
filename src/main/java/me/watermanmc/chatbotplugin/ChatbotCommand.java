@@ -32,6 +32,11 @@ public class ChatbotCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!sender.hasPermission("chatbot.use")) {
+            sender.sendMessage(messageManager.getNoPermissionMessage());
+            return true;
+        }
+
         if (!(sender instanceof Player)) {
             sender.sendMessage(messageManager.getOnlyPlayersMessage());
             return true;
