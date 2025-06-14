@@ -53,6 +53,10 @@ public class MessageManager {
     public String getApiErrorMessage() {
         return getPrefix() + ChatColor.translateAlternateColorCodes('&', getProperty("api_error_message"));
     }
+    
+    public String getNoPermissionMessage() {
+        return getPrefix() + ChatColor.translateAlternateColorCodes('&', getProperty("no_permission_message"));
+    }
 
     public String getFormattedResponse(String response) {
         return getPrefix() + response;
