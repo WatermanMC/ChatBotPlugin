@@ -9,7 +9,7 @@ public final class Plugin extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
 
-        int pluginId = 26143;
+        int pluginId = ID; // bStats id
         Metrics metrics = new Metrics(this, pluginId);
 
         this.getCommand("chatbot").setExecutor(new ChatbotCommand(this));
